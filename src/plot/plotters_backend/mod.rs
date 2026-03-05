@@ -1,10 +1,10 @@
-use crate::connection::AxisScale;
 use crate::estimate::Statistic;
 use crate::plot::{
     FilledCurve, Line, LineCurve, PlottingBackend, Points, Rectangle as RectangleArea, Size,
     VerticalLine,
 };
 use crate::report::{BenchmarkId, ValueType};
+use criterion_plot::Scale;
 use plotters::prelude::*;
 use std::path::PathBuf;
 
@@ -309,7 +309,7 @@ impl PlottingBackend for PlottersBackend {
         title: &str,
         unit: &str,
         value_type: ValueType,
-        axis_scale: AxisScale,
+        axis_scale: Scale,
         lines: &[(Option<&String>, LineCurve)],
     ) {
         summary::line_comparison(
@@ -328,7 +328,7 @@ impl PlottingBackend for PlottersBackend {
         path: PathBuf,
         title: &str,
         unit: &str,
-        axis_scale: AxisScale,
+        axis_scale: Scale,
         lines: &[(&str, LineCurve)],
     ) {
         summary::violin(&self.colors, path, title, unit, axis_scale, lines);

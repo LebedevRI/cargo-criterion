@@ -1,4 +1,3 @@
-use crate::connection::AxisScale;
 use crate::estimate::Statistic;
 use crate::format;
 use crate::plot::Size;
@@ -71,15 +70,6 @@ impl From<&crate::config::Colors> for Colors {
                 .copied()
                 .map(Color::from)
                 .collect(),
-        }
-    }
-}
-
-impl AxisScale {
-    fn to_gnuplot(self) -> Scale {
-        match self {
-            AxisScale::Linear => Scale::Linear,
-            AxisScale::Logarithmic => Scale::Logarithmic,
         }
     }
 }
@@ -355,7 +345,7 @@ impl PlottingBackend for Gnuplot {
         title: &str,
         unit: &str,
         value_type: ValueType,
-        axis_scale: AxisScale,
+        axis_scale: Scale,
         lines: &[(Option<&String>, LineCurve)],
     ) {
         let mut figure =
@@ -371,7 +361,7 @@ impl PlottingBackend for Gnuplot {
         path: PathBuf,
         title: &str,
         unit: &str,
-        axis_scale: AxisScale,
+        axis_scale: Scale,
         lines: &[(&str, LineCurve)],
     ) {
         let mut figure = summary::violin(&self.colors, title, unit, axis_scale, lines);

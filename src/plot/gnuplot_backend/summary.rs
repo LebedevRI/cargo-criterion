@@ -12,7 +12,7 @@ pub fn line_comparison(
     title: &str,
     unit: &str,
     value_type: ValueType,
-    axis_scale: AxisScale,
+    axis_scale: Scale,
     lines: &[(Option<&String>, LineCurve)],
 ) -> Figure {
     let mut figure = Figure::new();
@@ -34,14 +34,14 @@ pub fn line_comparison(
         .set(Title(format!("{}: Comparison", gnuplot_escape(title))))
         .configure(Axis::BottomX, |a| {
             a.set(Label(format!("Input{}", input_suffix)))
-                .set(axis_scale.to_gnuplot())
+                .set(axis_scale)
         });
 
     figure.configure(Axis::LeftY, |a| {
         a.configure(Grid::Major, |g| g.show())
             .configure(Grid::Minor, |g| g.hide())
             .set(Label(format!("Average time ({})", unit)))
-            .set(axis_scale.to_gnuplot())
+            .set(axis_scale)
     });
 
     for (i, (name, curve)) in lines.iter().enumerate() {
@@ -82,7 +82,7 @@ pub fn violin(
     colors: &Colors,
     title: &str,
     unit: &str,
-    axis_scale: AxisScale,
+    axis_scale: Scale,
     lines: &[(&str, LineCurve)],
 ) -> Figure {
     let tics = || (0..).map(|x| (f64::from(x)) + 0.5);
@@ -96,7 +96,7 @@ pub fn violin(
             a.configure(Grid::Major, |g| g.show())
                 .configure(Grid::Minor, |g| g.hide())
                 .set(Label(format!("Average time ({})", unit)))
-                .set(axis_scale.to_gnuplot())
+                .set(axis_scale)
         })
         .configure(Axis::LeftY, |a| {
             a.set(Label("Input"))

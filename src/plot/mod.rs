@@ -3,6 +3,7 @@ mod gnuplot_backend;
 #[cfg(feature = "plotters_backend")]
 mod plotters_backend;
 
+use criterion_plot::Scale;
 #[cfg(feature = "gnuplot_backend")]
 pub use gnuplot_backend::Gnuplot;
 #[cfg(feature = "plotters_backend")]
@@ -45,6 +46,16 @@ const KDE_POINTS: usize = 500;
 
 #[derive(Debug, Clone, Copy)]
 pub struct Size(pub usize, pub usize);
+
+impl From<AxisScale> for Scale {
+    fn from(value: AxisScale) -> Self {
+        match value {
+            AxisScale::Linear => Scale::Linear,
+            AxisScale::Logarithmic => Scale::Logarithmic(10.0),
+            AxisScale::Logarithmic_with_base(base) => Scale::Logarithmic(base),
+        }
+    }
+}
 
 impl PlotContext<'_> {
     pub fn line_comparison_path(&self) -> PathBuf {
@@ -351,7 +362,7 @@ pub trait PlottingBackend {
         title: &str,
         unit: &str,
         value_type: ValueType,
-        axis_scale: AxisScale,
+        axis_scale: Scale,
         lines: &[(Option<&String>, LineCurve)],
     );
 
@@ -360,7 +371,7 @@ pub trait PlottingBackend {
         path: PathBuf,
         title: &str,
         unit: &str,
-        axis_scale: AxisScale,
+        axis_scale: Scale,
         lines: &[(&str, LineCurve)],
     );
 
@@ -1335,12 +1346,14 @@ impl<B: PlottingBackend> Plotter for PlotGenerator<B> {
             .map(|(name, xs, ys)| (*name, LineCurve { xs, ys }))
             .collect();
 
+        let summary_scale = Scale::from(ctx.context.plot_config.summary_scale);
+
         self.backend.line_comparison(
             ctx.line_comparison_path(),
             ctx.id.as_title(),
             &unit,
             value_type,
-            ctx.context.plot_config.summary_scale,
+            summary_scale,
             &lines,
         );
     }
@@ -1395,11 +1408,13 @@ impl<B: PlottingBackend> Plotter for PlotGenerator<B> {
             .map(|(name, xs, ys)| (*name, LineCurve { xs, ys }))
             .collect::<Vec<_>>();
 
+        let summary_scale = Scale::from(ctx.context.plot_config.summary_scale);
+
         self.backend.violin(
             ctx.violin_path(),
             ctx.id.as_title(),
             &unit,
-            ctx.context.plot_config.summary_scale,
+            summary_scale,
             &lines,
         )
     }

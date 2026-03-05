@@ -2,6 +2,7 @@ use crate::connection::AxisScale;
 use crate::plot::plotters_backend::{Colors, DEFAULT_FONT, POINT_SIZE, SIZE};
 use crate::plot::LineCurve;
 use crate::report::ValueType;
+use criterion_plot::Scale;
 use plotters::coord::{
     ranged1d::{AsRangedCoord, ValueFormatter as PlottersValueFormatter},
     Shift,
@@ -15,7 +16,7 @@ pub fn line_comparison(
     title: &str,
     unit: &str,
     value_type: ValueType,
-    axis_scale: AxisScale,
+    axis_scale: Scale,
     lines: &[(Option<&String>, LineCurve)],
 ) {
     let x_range =
@@ -28,15 +29,15 @@ pub fn line_comparison(
         .unwrap();
 
     match axis_scale {
-        AxisScale::Linear => draw_line_comparison_figure(
+        Scale::Linear => draw_line_comparison_figure(
             colors, root_area, unit, x_range, y_range, value_type, lines,
         ),
-        AxisScale::Logarithmic => draw_line_comparison_figure(
+        Scale::Logarithmic(base) => draw_line_comparison_figure(
             colors,
             root_area,
             unit,
-            x_range.log_scale(),
-            y_range.log_scale(),
+            x_range.log_scale().base(base),
+            y_range.log_scale().base(base),
             value_type,
             lines,
         ),
@@ -109,7 +110,7 @@ pub fn violin(
     path: PathBuf,
     title: &str,
     unit: &str,
-    axis_scale: AxisScale,
+    axis_scale: Scale,
     lines: &[(&str, LineCurve)],
 ) {
     let mut x_range =
@@ -125,10 +126,15 @@ pub fn violin(
         .unwrap();
 
     match axis_scale {
-        AxisScale::Linear => draw_violin_figure(colors, root_area, unit, x_range, y_range, lines),
-        AxisScale::Logarithmic => {
-            draw_violin_figure(colors, root_area, unit, x_range.log_scale(), y_range, lines)
-        }
+        Scale::Linear => draw_violin_figure(colors, root_area, unit, x_range, y_range, lines),
+        Scale::Logarithmic(base) => draw_violin_figure(
+            colors,
+            root_area,
+            unit,
+            x_range.log_scale().base(base),
+            y_range,
+            lines,
+        ),
     }
 }
 

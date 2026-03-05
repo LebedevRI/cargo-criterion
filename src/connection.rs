@@ -235,6 +235,7 @@ impl From<RawBenchmarkId> for crate::report::BenchmarkId {
 pub enum AxisScale {
     Linear,
     Logarithmic,
+    Logarithmic_with_base(f64),
 }
 
 #[derive(Debug, Deserialize)]

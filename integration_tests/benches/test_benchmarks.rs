@@ -55,13 +55,29 @@ fn throughput_tests(c: &mut Criterion) {
     group.finish();
 }
 
-fn log_scale_tests(c: &mut Criterion) {
+fn log10_scale_tests(c: &mut Criterion) {
     let plot_config = PlotConfiguration::default().summary_scale(AxisScale::Logarithmic);
 
-    let mut group = c.benchmark_group("log_scale");
+    let mut group = c.benchmark_group("log10_scale");
     group.plot_config(plot_config);
 
     for time in &[1, 100, 10000] {
+        group.bench_with_input(
+            BenchmarkId::new("sleep (micros)", time),
+            time,
+            |bencher, input| bencher.iter(|| sleep(Duration::from_micros(*input))),
+        );
+    }
+    group.finish()
+}
+
+fn log2_scale_tests(c: &mut Criterion) {
+    let plot_config = PlotConfiguration::default().summary_scale(AxisScale::Log2);
+
+    let mut group = c.benchmark_group("log2_scale");
+    group.plot_config(plot_config);
+
+    for time in &[1, 128, 16384] {
         group.bench_with_input(
             BenchmarkId::new("sleep (micros)", time),
             time,
@@ -103,7 +119,7 @@ criterion_group! {
         .warm_up_time(Duration::from_millis(250))
         .measurement_time(Duration::from_millis(500))
         .nresamples(2000);
-    targets = special_characters, sampling_mode_tests, throughput_tests, log_scale_tests,
-        linear_scale_tests, zero_test
+    targets = special_characters, sampling_mode_tests, throughput_tests,
+    log10_scale_tests, log2_scale_tests, linear_scale_tests, zero_test
 }
 criterion_main!(benches);
